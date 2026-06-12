@@ -1,0 +1,43 @@
+package com.devtalles.tu_cv_spring_boot.tuCV.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.devtalles.tu_cv_spring_boot.tuCV.model.CvData;
+import com.devtalles.tu_cv_spring_boot.tuCV.service.CvInitializationService;
+
+import lombok.RequiredArgsConstructor;
+
+@Controller
+@RequiredArgsConstructor // Constructor de solo atributos final.
+public class LandingController {
+	
+	private final CvInitializationService service;
+	
+	@GetMapping("/cv-form")
+	public String showFormCV(Model model) {
+		CvData cvData = service.initializeCvData();
+		model.addAttribute("cvData", cvData);
+		return "cv-form";
+	}
+	
+	@PostMapping("/generate-cv")
+	public String generateCv(@ModelAttribute CvData cvData, RedirectAttributes rediAtt) {
+		rediAtt.addFlashAttribute("cvData", cvData);
+		return "redirect:/cv-display";
+	}
+	
+	@GetMapping("/cv-display")
+	public String displayCv(@ModelAttribute("cvData") CvData cvData, Model model) {
+		if(cvData.getPersonalDetails()==null) {
+			cvData = service.initializeCvData();
+		}
+		model.addAttribute("cvData", cvData);
+		return "index";
+	}
+
+}
